@@ -1,15 +1,16 @@
+using System.Data.SqlClient;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Dependency injections
 builder.Services.AddControllersWithViews();
+builder.Services.AddScoped<SqlConnection>(a =>
+    new SqlConnection(builder.Configuration.GetConnectionString("ApplicationDB")));
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
@@ -22,6 +23,6 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Authentication}/{action=Login}/{id?}");
 
 app.Run();
