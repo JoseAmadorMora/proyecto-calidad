@@ -2,6 +2,13 @@
 
 namespace tutorias.Models
 {
+    // Enum for user types
+    public enum UserTypes
+    {
+        Student = 0,
+        Teacher = 1
+    }
+
     public class UserModel
     {
         public int Id { get; set; }
@@ -11,6 +18,6 @@ namespace tutorias.Models
         public string? Email { get; set; }
         [StringLength(255)]
         public string? Password { get; set; }
-        public short UserType { get; set; } // 0: Student, 1: Teacher
+        public UserTypes UserType { get; set; }
     }
 }
