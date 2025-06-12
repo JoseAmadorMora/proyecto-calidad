@@ -12,19 +12,19 @@ namespace tutorias.Features.Authentication
             this.authenticationLogic = authenticationLogic;
         }
 
-        public IActionResult LoginPage()
+        public IActionResult loginPage()
         {
             return View();
         }
 
-        public IActionResult RegisterPage()
+        public IActionResult registerPage()
         {
             return View();
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Login(UserModel user)
+        public IActionResult login(UserModel user)
         {
             var userData = authenticationLogic.login(user);
             if (userData != null)
@@ -55,17 +55,17 @@ namespace tutorias.Features.Authentication
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult RegisterUser(UserModel user)
+        public IActionResult registerUser(UserModel user)
         {
-            var userId = authenticationLogic.RegisterUser(user);
+            var userId = authenticationLogic.registerUser(user);
             if (userId > 0)
             {
-                return RedirectToAction("Login", user);
+                return RedirectToAction("login", user);
             }
             else
             {
                 TempData["RegisterError"] = "No se pudo registrar el usuario";
-                return RedirectToAction("LoginPage");
+                return RedirectToAction("loginPage");
             }
         }
     }

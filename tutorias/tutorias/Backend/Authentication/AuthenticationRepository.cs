@@ -7,7 +7,7 @@ namespace tutorias.Backend.Authentication
     public interface IAuthenticationRepository
     {
         UserModel? login(UserModel user);
-        int RegisterUser(UserModel user);
+        int registerUser(UserModel user);
     }
 
     public class AuthenticationRepository : IAuthenticationRepository
@@ -24,7 +24,7 @@ namespace tutorias.Backend.Authentication
             return sqlConnection.QuerySingleOrDefault<UserModel>("SELECT Id, [Name], Email, UserType FROM Users WHERE Email = @Email AND [Password] = @Password", user);
         }
 
-        public int RegisterUser(UserModel user)
+        public int registerUser(UserModel user)
         {
             var sql = @"INSERT INTO Users ([Name], Email, [Password], UserType) 
                         VALUES (@Name, @Email, @Password, @UserType);

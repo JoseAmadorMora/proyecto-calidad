@@ -17,9 +17,9 @@ namespace tutorias.Backend.Authentication
             return authenticationRepository.login(user);
         }
 
-        public int RegisterUser(UserModel user)
+        public int registerUser(UserModel user)
         {
-            return authenticationRepository.RegisterUser(user);
+            return authenticationRepository.registerUser(user);
         }
     }
 }
