@@ -21,29 +21,19 @@
             }
             <form id="loginForm" asp-action="login" method="post">
                 <div class="mb-3">
-                    <label asp-for="Name" class="form-label">Nombre</label>
-                    <input asp-for="Name" class="form-control" />
-                    <span asp-validation-for="Name" class="text-danger"></span>
-                </div>
-                <div class="mb-3">
                     <label asp-for="Email" class="form-label">Correo electrónico</label>
-                    <input asp-for="Email" type="email" class="form-control" />
+                    <input asp-for="Email" type="email" class="form-control" required/>
                     <span asp-validation-for="Email" class="text-danger"></span>
                 </div>
                 <div class="mb-3">
                     <label asp-for="Password" class="form-label">Contraseña</label>
-                    <input asp-for="Password" type="password" class="form-control" id="Password" />
-                </div>
-                <div class="mb-4">
-                    <label asp-for="UserType" class="form-label">Tipo de usuario</label>
-                    <select asp-for="UserType" class="form-select">
-                        <option value="0">Estudiante</option>
-                        <option value="1">Profesor</option>
-                    </select>
-                    <span asp-validation-for="UserType" class="text-danger"></span>
+                    <input asp-for="Password" type="password" class="form-control" id="Password" required/>
                 </div>
                 <button type="submit" class="btn btn-primary w-100">Iniciar sesión</button>
             </form>
+            <div class="text-center mt-3">
+                <a class="btn btn-link" asp-action="RegisterPage" asp-controller="Authentication">¿No tienes cuenta? Registrarse</a>
+            </div>
         </div>
     </div>
 </div>

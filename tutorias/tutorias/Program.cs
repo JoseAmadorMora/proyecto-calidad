@@ -1,4 +1,5 @@
 using System.Data.SqlClient;
+using tutorias.Backend.Authentication;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -6,6 +7,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<SqlConnection>(a =>
     new SqlConnection(builder.Configuration.GetConnectionString("ApplicationDB")));
+builder.Services.AddScoped<AuthenticationLogic>();
+builder.Services.AddScoped<IAuthenticationRepository, AuthenticationRepository>();
 
 var app = builder.Build();
 

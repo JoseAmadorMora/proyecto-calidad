@@ -29,16 +29,17 @@ namespace tutorias.Features.Authentication
             var userData = authenticationLogic.login(user);
             if (userData != null)
             {
-                ViewBag["UserId"] = userData.Id;
-                ViewBag["UserName"] = userData.Name;
-                ViewBag["UserEmail"] = userData.Email;
+                ViewBag.UserId = userData.Id;
+                ViewBag.UserName = userData.Name;
+                ViewBag.UserEmail = userData.Email;
+                var meta = "<meta charset=\"UTF-8\">";
                 if (userData.UserType == UserTypes.Student)
                 {
-                    return Content("<h1>Página principal de estudiantes se desarollará posteriormente</h1>");
+                    return Content($"{meta}<h1>Bienvenido {userData.Name}. Página principal de estudiantes se desarrollará posteriormente</h1>", "text/html");
                 }
                 else if (userData.UserType == UserTypes.Teacher)
                 {
-                    return Content("<h1>Página principal de tutores se desarollará posteriormente</h1>");
+                    return Content($"{meta}<h1>Bienvenido {userData.Name}. Página principal de tutores se desarrollará posteriormente</h1>", "text/html");
                 }
                 else
                 {
@@ -60,7 +61,7 @@ namespace tutorias.Features.Authentication
             var userId = authenticationLogic.registerUser(user);
             if (userId > 0)
             {
-                return RedirectToAction("login", user);
+                return View("RedirectSuccesfulRegisterToAutoLogin", user);
             }
             else
             {
