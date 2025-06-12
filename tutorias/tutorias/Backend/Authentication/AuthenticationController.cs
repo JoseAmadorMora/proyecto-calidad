@@ -12,12 +12,12 @@ namespace tutorias.Features.Authentication
             this.authenticationLogic = authenticationLogic;
         }
 
-        public IActionResult loginPage()
+        public IActionResult LoginPage()
         {
             return View();
         }
 
-        public IActionResult registerPage()
+        public IActionResult RegisterPage()
         {
             return View();
         }

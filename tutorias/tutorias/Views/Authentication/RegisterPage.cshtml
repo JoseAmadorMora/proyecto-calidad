@@ -19,7 +19,7 @@
                     </div>
                 </div>
             }
-            <form id="registerForm" asp-action="RegisterUser" method="post">
+            <form id="registerForm" asp-action="registerUser" method="post">
                 @Html.AntiForgeryToken()
                 <div class="mb-3">
                     <label asp-for="Name" class="form-label">Nombre</label>
