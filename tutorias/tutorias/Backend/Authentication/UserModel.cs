@@ -2,7 +2,6 @@
 
 namespace tutorias.Models
 {
-    // Enum for user types
     public enum UserTypes
     {
         Student = 0,
