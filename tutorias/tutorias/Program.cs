@@ -1,5 +1,6 @@
 using System.Data.SqlClient;
 using tutorias.Backend.Authentication;
+using tutorias.Backend.Tutoring;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,8 +8,14 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<SqlConnection>(a =>
     new SqlConnection(builder.Configuration.GetConnectionString("ApplicationDB")));
+
 builder.Services.AddScoped<AuthenticationLogic>();
 builder.Services.AddScoped<IAuthenticationRepository, AuthenticationRepository>();
+
+builder.Services.AddScoped<TutoringLogic>();
+builder.Services.AddScoped<ITutoringRepository, TutoringRepository>();
+
+builder.Services.AddSession();
 
 var app = builder.Build();
 
@@ -19,6 +26,8 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+
+app.UseSession();
 
 app.UseRouting();
 
