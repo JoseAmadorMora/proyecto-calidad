@@ -3,6 +3,11 @@
 @{
     ViewData["Title"] = ViewContext.RouteData.Values["action"]!.ToString() == "EditTutorship" ? "Editar Tutoria" : "Agregar Tutoria";
     bool isEdit = ViewData["Title"].ToString()!.Contains("Editar");
+    var sedeList = new List<string> {
+        "Sede Central", "Sede Regional de Occidente", "Sede Regional del Atlántico",
+        "Sede Regional de Guanacaste", "Sede Regional del Caribe",
+        "Sede Regional del Pacífico", "Sede del Sur", "Sede Interuniversitaria de Alajuela"
+    };
 }
 
 <div class="container mt-5">
@@ -29,15 +34,27 @@
             </div>
             <div class="col-md-3 mb-3">
                 <label asp-for="Semester" class="form-label">Semestre</label>
-                <input asp-for="Semester" class="form-control" type="number" required />
+                <select asp-for="Semester" class="form-select" required>
+                    <option value="">Seleccione</option>
+                    <option value="1" selected="@Model.Semester == 1">1</option>
+                    <option value="2" selected="@Model.Semester == 2">2</option>
+                </select>
             </div>
             <div class="col-md-3 mb-3">
                 <label asp-for="Year" class="form-label">Año</label>
-                <input asp-for="Year" class="form-control" type="number" required />
+                <input asp-for="Year" class="form-control" type="number" value="2025" readonly />
             </div>
             <div class="col-md-3 mb-3">
                 <label asp-for="Sede" class="form-label">Sede</label>
-                <input asp-for="Sede" class="form-control" required />
+                <select asp-for="Sede" class="form-select" required>
+                    <option value="">Seleccione</option>
+                    @foreach (var sede in sedeList)
+                    {
+                        <option value="@sede" selected="@(Model.Sede == sede)">
+                            @sede
+                        </option>
+                    }
+                </select>
             </div>
             <div class="col-md-6 mb-3">
                 <label asp-for="School" class="form-label">Escuela</label>

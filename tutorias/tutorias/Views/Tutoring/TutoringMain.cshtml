@@ -1,4 +1,6 @@
-﻿@model IEnumerable<tutorias.Backend.Tutoring.TutoringModel>
+﻿@model X.PagedList.IPagedList<tutorias.Backend.Tutoring.TutoringModel>
+@using X.PagedList.Mvc.Core
+
 
  @{
     ViewData["Title"] = "Tutorias";
@@ -11,13 +13,13 @@
 
     <form method="get" asp-action="SearchTutorships" class="row g-3 mb-4">
         <div class="col-md-3">
-            <input type="text" name="course" class="form-control" placeholder="Curso">
+            <input type="text" name="course" class="form-control" placeholder="Curso" />
         </div>
         <div class="col-md-3">
-            <input type="text" name="sede" class="form-control" placeholder="Sede">
+            <input type="text" name="sede" class="form-control" placeholder="Sede" />
         </div>
         <div class="col-md-3">
-            <input type="text" name="school" class="form-control" placeholder="Escuela">
+            <input type="text" name="school" class="form-control" placeholder="Escuela" />
         </div>
         <div class="col-md-3 d-flex">
             <button type="submit" class="btn btn-primary me-2">Buscar</button>
@@ -87,6 +89,9 @@
                 }
             </tbody>
         </table>
+        <div class="text-center">
+            @Html.PagedListPager(Model, page => Url.Action("TutoringMain", new { page }))
+        </div>
     }
     else
     {
