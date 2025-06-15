@@ -1,11 +1,12 @@
-﻿using NUnit.Framework;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Moq;
+using NUnit.Framework;
+using System.Collections.Generic;
+using tutorias.Backend.Authentication;
 using tutorias.Backend.Tutorias;
 using tutorias.Backend.Tutoring;
 using tutorias.Models;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http;
-using Moq;
-using System.Collections.Generic;
 
 namespace NUnitTests
 {
@@ -27,6 +28,52 @@ namespace NUnitTests
             };
 
             return controller;
+        }
+
+        private (TutoringController controller, ViewResult result)
+            GetControllerAndResultWithMock(Mock<ITutoringRepository> repoMock)
+        {
+            var logic = new TutoringLogic(repoMock.Object);
+            var controller = new TutoringController(logic);
+
+            var httpContext = new DefaultHttpContext();
+            httpContext.Session = new MockHttpSession();
+            httpContext.Session.SetInt32("UserId", 1);
+            httpContext.Session.SetInt32("UserType", (int)UserTypes.Teacher);
+
+            controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = httpContext
+            };
+
+            var result = controller.TutoringMain() as ViewResult;
+            return (controller, result);
+        }
+
+        [Test]
+        public void TutoringMain_SetsViewBagValues()
+        {
+            var mockRepo = new Mock<ITutoringRepository>();
+            mockRepo.Setup(r => r.GetAllTutorships()).Returns(new List<TutoringModel>());
+
+            var (controller, result) = GetControllerAndResultWithMock(mockRepo);
+            
+            Assert.That(controller.ViewBag.UserId, Is.EqualTo(1));
+            Assert.That(controller.ViewBag.UserType, Is.EqualTo((int)UserTypes.Teacher));
+            Assert.That(controller.ViewBag.IsProfessor, Is.True);
+        }
+
+
+        [Test]
+        public void AddTutorship_ReturnsUnauthorized_WhenNoSession()
+        {
+            var mockRepo = new Mock<ITutoringRepository>();
+            var controller = GetControllerWithMock(mockRepo);
+            controller.HttpContext.Session.Remove("UserId");
+
+            var result = controller.AddTutorship(new TutoringModel());
+
+            Assert.That(result, Is.InstanceOf<UnauthorizedResult>());
         }
 
         [Test]
@@ -63,6 +110,19 @@ namespace NUnitTests
 
             Assert.That(result.ViewName, Is.EqualTo("TutorshipForm"));
             Assert.That(result.Model, Is.InstanceOf<TutoringModel>());
+        }
+
+        [Test]
+        public void AddTutorship_ReturnsView_WhenModelInvalid()
+        {
+            var mockRepo = new Mock<ITutoringRepository>();
+            var controller = GetControllerWithMock(mockRepo);
+            controller.ModelState.AddModelError("CourseName", "Required");
+
+            var result = controller.AddTutorship(new TutoringModel());
+
+            Assert.That(result, Is.InstanceOf<ViewResult>());
+            Assert.That(((ViewResult)result).ViewName, Is.EqualTo("TutorshipForm"));
         }
 
         [Test]
@@ -179,6 +239,18 @@ namespace NUnitTests
             var result = controller.DeleteTutorship(4, 1);
 
             Assert.That(result, Is.InstanceOf<BadRequestObjectResult>());
+        }
+
+        [Test]
+        public void DeleteTutorship_HandlesNonExistentTutorship()
+        {
+            var mockRepo = new Mock<ITutoringRepository>();
+            mockRepo.Setup(r => r.GetTutorshipById(It.IsAny<int>())).Returns((TutoringModel?)null);
+
+            var controller = GetControllerWithMock(mockRepo);
+            var result = controller.DeleteTutorship(999, 1);
+
+            Assert.That(result, Is.InstanceOf<ForbidResult>());
         }
     }
 
