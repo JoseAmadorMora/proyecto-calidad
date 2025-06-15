@@ -1,5 +1,6 @@
-﻿using System.Data.SqlClient;
-using Dapper;
+﻿using Dapper;
+using System.Data;
+using System.Data.SqlClient;
 
 namespace tutorias.Backend.Tutoring
 {
@@ -15,9 +16,9 @@ namespace tutorias.Backend.Tutoring
     }
     public class TutoringRepository : ITutoringRepository
     {
-        private readonly SqlConnection sqlConnection;
+        private readonly IDbConnection sqlConnection;
 
-        public TutoringRepository(SqlConnection sqlConnection)
+        public TutoringRepository(IDbConnection sqlConnection)
         {
             this.sqlConnection = sqlConnection;
         }
