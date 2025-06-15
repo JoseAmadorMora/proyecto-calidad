@@ -1,11 +1,12 @@
-using NUnit.Framework;
-using tutorias.Features.Authentication;
-using tutorias.Backend.Authentication;
-using tutorias.Models;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Moq;
+using NUnit.Framework;
+using System.Reflection;
+using tutorias.Backend.Authentication;
+using tutorias.Features.Authentication;
+using tutorias.Models;
 
 namespace NUnitTests
 {
@@ -15,10 +16,20 @@ namespace NUnitTests
         {
             var logic = new AuthenticationLogic(repoMock.Object);
             var controller = new AuthenticationController(logic);
+
+            // Create a new DefaultHttpContext
             var httpContext = new DefaultHttpContext();
+
+            // Set up the session
+            var session = new Mock<ISession>();
+            session.Setup(s => s.Set(It.IsAny<string>(), It.IsAny<byte[]>()));
+            session.Setup(s => s.TryGetValue(It.IsAny<string>(), out It.Ref<byte[]>.IsAny)).Returns(false);
+            httpContext.Session = session.Object;
             controller.ControllerContext = new ControllerContext { HttpContext = httpContext };
+
             var tempDataProvider = new Mock<ITempDataProvider>();
             controller.TempData = new TempDataDictionary(httpContext, tempDataProvider.Object);
+
             return controller;
         }
 
@@ -47,10 +58,13 @@ namespace NUnitTests
             var repo = new Mock<IAuthenticationRepository>();
             repo.Setup(r => r.login(It.IsAny<UserModel>())).Returns(user);
             var controller = GetControllerWithRepoMock(repo);
+
             var result = controller.login(new UserModel());
-            Assert.That(result, Is.InstanceOf<ContentResult>());
-            var content = (ContentResult)result;
-            Assert.That(content.Content, Does.Contain("Bienvenido"));
+            Assert.That(result, Is.InstanceOf<RedirectToActionResult>());
+
+            var redirect = (RedirectToActionResult)result;
+            Assert.That(redirect.ActionName, Is.EqualTo("TutoringMain"));
+            Assert.That(redirect.ControllerName, Is.EqualTo("Tutoring"));
         }
 
         [Test]
@@ -60,10 +74,13 @@ namespace NUnitTests
             var repo = new Mock<IAuthenticationRepository>();
             repo.Setup(r => r.login(It.IsAny<UserModel>())).Returns(user);
             var controller = GetControllerWithRepoMock(repo);
+
             var result = controller.login(new UserModel());
-            Assert.That(result, Is.InstanceOf<ContentResult>());
-            var content = (ContentResult)result;
-            Assert.That(content.Content, Does.Contain("Bienvenido"));
+            Assert.That(result, Is.InstanceOf<RedirectToActionResult>());
+
+            var redirect = (RedirectToActionResult)result;
+            Assert.That(redirect.ActionName, Is.EqualTo("TutoringMain"));
+            Assert.That(redirect.ControllerName, Is.EqualTo("Tutoring"));
         }
 
         [Test]
@@ -81,11 +98,12 @@ namespace NUnitTests
         [Test]
         public void login_RedirectsToLoginPage_OnUnknownUserType()
         {
-            var user = new UserModel { Name = "Desconocido", UserType = (UserTypes)99, Id = 4, Email = "d@d.com" };
-            var repo = new Mock<IAuthenticationRepository>();
-            repo.Setup(r => r.login(It.IsAny<UserModel>())).Returns(user);
+            var repo = new Mock<IAuthenticationRepository>();            
+            repo.Setup(r => r.login(It.IsAny<UserModel>())).Returns((UserModel ?)null);
+
             var controller = GetControllerWithRepoMock(repo);
             var result = controller.login(new UserModel());
+
             Assert.That(result, Is.InstanceOf<RedirectToActionResult>());
             var redirect = (RedirectToActionResult)result;
             Assert.That(redirect.ActionName, Is.EqualTo("LoginPage"));
@@ -116,4 +134,6 @@ namespace NUnitTests
             Assert.That(redirect.ActionName, Is.EqualTo("loginPage"));
         }
     }
+
+    
 }
