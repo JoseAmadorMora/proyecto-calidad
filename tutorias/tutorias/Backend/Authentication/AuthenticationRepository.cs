@@ -1,5 +1,6 @@
-﻿using System.Data.SqlClient;
-using Dapper;
+﻿using Dapper;
+using System.Data;
+using System.Data.SqlClient;
 using tutorias.Models;
 
 namespace tutorias.Backend.Authentication
@@ -12,9 +13,9 @@ namespace tutorias.Backend.Authentication
 
     public class AuthenticationRepository : IAuthenticationRepository
     {
-        private readonly SqlConnection sqlConnection;
+        private readonly IDbConnection sqlConnection;
 
-        public AuthenticationRepository(SqlConnection sqlConnection)
+        public AuthenticationRepository(IDbConnection sqlConnection)
         {
             this.sqlConnection = sqlConnection;
         }
@@ -29,6 +30,12 @@ namespace tutorias.Backend.Authentication
             var sql = @"INSERT INTO Users ([Name], Email, [Password], UserType) 
                         VALUES (@Name, @Email, @Password, @UserType);
                         SELECT CAST(SCOPE_IDENTITY() as int);";
+            if (sqlConnection.GetType().Name.Contains("Sqlite"))
+            {
+                sql = @"INSERT INTO Users (Name, Email, Password, UserType)
+                VALUES (@Name, @Email, @Password, @UserType);
+                SELECT last_insert_rowid();";
+            }
             return sqlConnection.QuerySingle<int>(sql, user);
         }
     }
