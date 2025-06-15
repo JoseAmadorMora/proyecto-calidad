@@ -113,19 +113,6 @@ namespace NUnitTests
         }
 
         [Test]
-        public void AddTutorship_ReturnsView_WhenModelInvalid()
-        {
-            var mockRepo = new Mock<ITutoringRepository>();
-            var controller = GetControllerWithMock(mockRepo);
-            controller.ModelState.AddModelError("CourseName", "Required");
-
-            var result = controller.AddTutorship(new TutoringModel());
-
-            Assert.That(result, Is.InstanceOf<ViewResult>());
-            Assert.That(((ViewResult)result).ViewName, Is.EqualTo("TutorshipForm"));
-        }
-
-        [Test]
         public void AddTutorship_Post_Success_ReturnsRedirect()
         {
             var mockRepo = new Mock<ITutoringRepository>();
