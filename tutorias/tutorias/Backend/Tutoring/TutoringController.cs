@@ -8,20 +8,24 @@ namespace tutorias.Backend.Tutorias
     {
         private readonly TutoringLogic tutoringLogic;
 
-        public TutoringController(TutoringLogic tutoringLogic)
-        {
-            this.tutoringLogic = tutoringLogic;
-        }
-        public IActionResult Main()
+        private void SetUserContext()
         {
             var userId = HttpContext.Session.GetInt32("UserId") ?? 0;
             var userType = HttpContext.Session.GetInt32("UserType") ?? 0;
 
-            var allTutorships = tutoringLogic.GetAllTutorships();
-
             ViewBag.UserId = userId;
             ViewBag.UserType = userType;
             ViewBag.IsProfessor = (userType == (int)UserTypes.Teacher);
+        }
+
+        public TutoringController(TutoringLogic tutoringLogic)
+        {
+            this.tutoringLogic = tutoringLogic;
+        }
+        public IActionResult TutoringMain()
+        {
+            SetUserContext();
+            var allTutorships = tutoringLogic.GetAllTutorships();
 
             return View(allTutorships);
         }
@@ -29,29 +33,34 @@ namespace tutorias.Backend.Tutorias
         [HttpGet]
         public IActionResult SearchTutorships(string? course = null, string? sede = null, string? school = null)
         {
-            var userId = HttpContext.Session.GetInt32("UserId") ?? 0;
-            var userType = HttpContext.Session.GetInt32("UserType") ?? 0;
-
-            ViewBag.IsProfessor = (userType == (int)UserTypes.Teacher);
-            ViewBag.UserId = userId;
-
+            SetUserContext();
             var tutorships = tutoringLogic.SearchTutorships(course, sede, school);
 
-            return View("Main", tutorships);
+            return View("TutoringMain", tutorships);
         }
 
         [HttpGet]
         public IActionResult AddTutorship()
         {
-            return View();
+            ViewData["Title"] = "Agregar Tutoria";
+            return View("TutorshipForm", new TutoringModel());
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult AddTutorship(TutoringModel tutorship)
         {
+            var userId = HttpContext.Session.GetInt32("UserId");
+
+            if (userId == null)
+                return Unauthorized();
+
+            tutorship.ProfessorId = userId.Value;
+
             bool success = tutoringLogic.AddTutorship(tutorship);
-            if (success)
-                return RedirectToAction("Main");
+            if (success) {               
+                return RedirectToAction("TutoringMain");
+            }                 
             else
                 return BadRequest("Error al crear tutoria");
         }
@@ -60,7 +69,10 @@ namespace tutorias.Backend.Tutorias
         public IActionResult EditTutorship(int id)
         {
             var tutorship = tutoringLogic.GetTutorshipById(id);
-            return View(tutorship);
+            if (tutorship == null) return NotFound();
+
+            ViewData["Title"] = "Editar Tutoria";
+            return View("TutorshipForm", tutorship);
         }
 
         [HttpPost]
@@ -73,7 +85,7 @@ namespace tutorias.Backend.Tutorias
 
             bool success = tutoringLogic.UpdateTutorship(tutorship);
             if (success)
-                return RedirectToAction("Main");
+                return RedirectToAction("TutoringMain");
             else
                 return BadRequest("Error al actualizar tutoria");
         }
@@ -90,7 +102,7 @@ namespace tutorias.Backend.Tutorias
 
             bool success = tutoringLogic.DeleteTutorship(id, professorId);
             if (success)
-                return RedirectToAction("Main");
+                return RedirectToAction("TutoringMain");
             else
                 return BadRequest("Error al borrar tutoria");
         }
