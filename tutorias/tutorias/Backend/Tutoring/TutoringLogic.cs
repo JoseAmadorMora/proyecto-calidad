@@ -4,7 +4,6 @@ namespace tutorias.Backend.Tutoring
 {
     public class TutoringLogic
     {
-
         private readonly ITutoringRepository tutoringRepository;
 
         public TutoringLogic(ITutoringRepository tutorshipRepository)

@@ -5,7 +5,6 @@ namespace tutorias.Backend.Tutoring
 {
     public interface ITutoringRepository
     {
-       
         bool AddTutorship(TutoringModel tutorship);
         bool UpdateTutorship(TutoringModel tutorship);
         bool DeleteTutorship(int id, int professorId);

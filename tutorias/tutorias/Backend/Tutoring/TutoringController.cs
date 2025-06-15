@@ -58,9 +58,8 @@ namespace tutorias.Backend.Tutorias
             tutorship.ProfessorId = userId.Value;
 
             bool success = tutoringLogic.AddTutorship(tutorship);
-            if (success) {               
+            if (success)
                 return RedirectToAction("TutoringMain");
-            }                 
             else
                 return BadRequest("Error al crear tutoria");
         }
@@ -107,5 +106,4 @@ namespace tutorias.Backend.Tutorias
                 return BadRequest("Error al borrar tutoria");
         }
     }
-
 }

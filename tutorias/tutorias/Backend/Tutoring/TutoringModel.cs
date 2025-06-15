@@ -30,6 +30,5 @@ namespace tutorias.Backend.Tutoring
         public int ProfessorId { get; set; }
 
         public string? ProfessorName { get; set; } // Obtained via JOIN
-
     }
 }
