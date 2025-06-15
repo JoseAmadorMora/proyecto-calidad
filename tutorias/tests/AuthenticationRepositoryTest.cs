@@ -49,6 +49,29 @@ namespace NUnitTests
         }
 
         [Test]
+        public void RegisterUser_ThrowsException_WhenEmailExists()
+        {
+            var email = "bob@mail.com";
+            _repo.registerUser(new UserModel
+            {
+                Name = "Bob",
+                Email = email,
+                Password = "pwd",
+                UserType = UserTypes.Teacher
+            });
+            var ex = Assert.Throws<InvalidOperationException>(() =>
+                _repo.registerUser(new UserModel
+                {
+                    Name = "Otro",
+                    Email = email,
+                    Password = "pwd2",
+                    UserType = UserTypes.Student
+                })
+            );
+            Assert.That(ex.Message, Does.Contain(email));
+        }
+
+        [Test]
         public void Login_ReturnsUserModel_WhenCredentialsCorrect()
         {
             _repo.registerUser(new UserModel
