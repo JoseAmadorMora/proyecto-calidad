@@ -29,27 +29,10 @@ namespace tutorias.Features.Authentication
             var userData = authenticationLogic.login(user);
             if (userData != null)
             {
-                /* ViewBag.UserId = userData.Id;
-                 ViewBag.UserName = userData.Name;
-                 ViewBag.UserEmail = userData.Email;
-                 var meta = "<meta charset=\"UTF-8\">";
-                 if (userData.UserType == UserTypes.Student)
-                 {
-                     return Content($"{meta}<h1>Bienvenido {userData.Name}. Página principal de estudiantes se desarrollará posteriormente</h1>", "text/html");
-                 }
-                 else if (userData.UserType == UserTypes.Teacher)
-                 {
-                     return Content($"{meta}<h1>Bienvenido {userData.Name}. Página principal de tutores se desarrollará posteriormente</h1>", "text/html");
-                 }
-                 else
-                 {
-                     TempData["LoginError"] = "Error de servidor";
-                     return RedirectToAction("LoginPage");
-                 }*/
                 HttpContext.Session.SetInt32("UserId", userData.Id);
                 HttpContext.Session.SetInt32("UserType", (int)userData.UserType);
 
-                return RedirectToAction("Main", "Tutoring");
+                return RedirectToAction("TutoringMain", "Tutoring");
             }
             else
             {
