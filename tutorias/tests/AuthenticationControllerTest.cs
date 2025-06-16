@@ -16,16 +16,29 @@ namespace NUnitTests
         {
             var logic = new AuthenticationLogic(repoMock.Object);
             var controller = new AuthenticationController(logic);
-
-            // Create a new DefaultHttpContext
+          
             var httpContext = new DefaultHttpContext();
 
-            // Set up the session
-            var session = new Mock<ISession>();
-            session.Setup(s => s.Set(It.IsAny<string>(), It.IsAny<byte[]>()));
-            session.Setup(s => s.TryGetValue(It.IsAny<string>(), out It.Ref<byte[]>.IsAny)).Returns(false);
-            httpContext.Session = session.Object;
-            controller.ControllerContext = new ControllerContext { HttpContext = httpContext };
+            var sessionStorage = new Dictionary<string, byte[]>();
+
+            var sessionMock = new Mock<ISession>();
+            sessionMock.Setup(s => s.Set(It.IsAny<string>(), It.IsAny<byte[]>()))
+                       .Callback<string, byte[]>((key, value) => sessionStorage[key] = value);
+
+            sessionMock.Setup(s => s.TryGetValue(It.IsAny<string>(), out It.Ref<byte[]>.IsAny))
+                       .Returns((string key, out byte[] value) =>
+                       {
+                           var found = sessionStorage.TryGetValue(key, out var val);
+                           value = val;
+                           return found;
+                       });
+
+            httpContext.Session = sessionMock.Object;
+
+            controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = httpContext
+            };
 
             var tempDataProvider = new Mock<ITempDataProvider>();
             controller.TempData = new TempDataDictionary(httpContext, tempDataProvider.Object);
@@ -113,14 +126,14 @@ namespace NUnitTests
         public void login_SetsCorrectSessionValues()
         {
             var user = new UserModel { Id = 1, UserType = UserTypes.Student };
-            var repo = new Mock<IAuthenticationRepository>();
-            repo.Setup(r => r.login(It.IsAny<UserModel>())).Returns(user);
-            var controller = GetControllerWithRepoMock(repo);
+             var repo = new Mock<IAuthenticationRepository>();
+             repo.Setup(r => r.login(It.IsAny<UserModel>())).Returns(user);
+             var controller = GetControllerWithRepoMock(repo);
 
-            var result = controller.login(new UserModel());
-            
-            Assert.That(controller.HttpContext.Session.GetInt32("UserId"), Is.EqualTo(1));
-            Assert.That(controller.HttpContext.Session.GetInt32("UserType"), Is.EqualTo((int)UserTypes.Student));
+             var result = controller.login(new UserModel());
+
+             Assert.That(controller.HttpContext.Session.GetInt32("UserId"), Is.EqualTo(1));
+             Assert.That(controller.HttpContext.Session.GetInt32("UserType"), Is.EqualTo((int)UserTypes.Student));            
         }
 
         [Test]
