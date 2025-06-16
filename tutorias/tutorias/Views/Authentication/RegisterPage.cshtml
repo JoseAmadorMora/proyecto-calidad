@@ -1,0 +1,102 @@
+@model tutorias.Models.UserModel
+
+@{
+    ViewData["Title"] = "Registro";
+}
+
+<div class="min-vh-100 d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%);">
+    <div class="card shadow-lg" style="min-width: 350px; max-width: 400px;">
+        <div class="card-body">
+            <h2 class="card-title text-center mb-4">Registro</h2>
+            @if (TempData["RegisterError"] != null)
+            {
+                <div id="registerToast" class="toast align-items-center bg-danger text-white border-0 w-100 mb-3" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="d-flex">
+                        <div class="toast-body">
+                            @TempData["RegisterError"]
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                </div>
+            }
+            <form id="registerForm" asp-action="registerUser" method="post">
+                @Html.AntiForgeryToken()
+                <div class="mb-3">
+                    <label asp-for="Name" class="form-label">Nombre</label>
+                    <input asp-for="Name" class="form-control" required/>
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="Email" class="form-label">Correo electrónico</label>
+                    <input asp-for="Email" type="email" class="form-control" required/>
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="Password" class="form-label">Contraseña</label>
+                    <input asp-for="Password" type="password" class="form-control" id="Password" required/>
+                </div>
+                <div class="mb-4">
+                    <label asp-for="UserType" class="form-label">Tipo de usuario</label>
+                    <select asp-for="UserType" class="form-select">
+                        <option value="0">Estudiante</option>
+                        <option value="1">Profesor</option>
+                    </select>
+                    <span asp-validation-for="UserType" class="text-danger"></span>
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Registrarse</button>
+            </form>
+            <div class="text-center mt-3">
+                <a class="btn btn-link" asp-action="LoginPage" asp-controller="Authentication">¿Ya tienes cuenta? Iniciar sesión</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    html, body {
+        min-height: 100vh;
+        background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%);
+    }
+
+    .card {
+        border-radius: 18px;
+    }
+
+    .form-control,
+    .form-select {
+        border-radius: 10px;
+    }
+
+    .btn-primary {
+        border-radius: 10px;
+    }
+</style>
+
+@section Scripts {
+    <script>
+        async function sha256(str) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(str);
+            const hashBuffer = await window.crypto.subtle.digest('SHA-256', data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        document.getElementById('registerForm').addEventListener('submit', async function (e) {
+            const pwdInput = document.getElementById('Password');
+            if (pwdInput && pwdInput.value) {
+                e.preventDefault();
+                pwdInput.value = await sha256(pwdInput.value);
+                this.submit();
+            }
+        });
+
+        window.addEventListener('DOMContentLoaded', function () {
+            var toastEl = document.getElementById('registerToast');
+            if (toastEl && window.bootstrap) {
+                var toast = new bootstrap.Toast(toastEl, { delay: 4000 });
+                toast.show();
+            }
+        });
+    </script>
+}

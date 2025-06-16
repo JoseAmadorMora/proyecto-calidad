@@ -1,0 +1,20 @@
+CREATE TABLE Users (
+    Id INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
+    [Name] NVARCHAR(100) NOT NULL,
+    Email NVARCHAR(255) UNIQUE NOT NULL,
+    [Password] NVARCHAR(255) NOT NULL,
+    UserType TINYINT NOT NULL
+);
+
+CREATE TABLE Tutorship (
+    Id  INT NOT NULL PRIMARY KEY,
+    CourseInitials NVARCHAR(30) NOT NULL,
+    CourseName NVARCHAR(50) NOT NULL,
+    [Group] INT NOT NULL,
+    Sede NVARCHAR(50) NOT NULL,
+    School NVARCHAR(50) NOT NULL,    
+    Semester  INT NOT NULL ,
+    [Year]  INT NOT NULL ,
+    [Description] NVARCHAR(255) NOT NULL,
+    ProfessorId INT NOT NULL FOREIGN KEY REFERENCES Users(Id)
+);
