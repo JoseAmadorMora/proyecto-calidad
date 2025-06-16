@@ -36,7 +36,7 @@ namespace tutorias.Features.Authentication
             }
             else
             {
-                TempData["LoginError"] = "usuario o contraseña incorrectos o inexistentes";
+                TempData["LoginError"] = "usuario o contrasena incorrectos o inexistentes";
                 return RedirectToAction("LoginPage");
             }
         }

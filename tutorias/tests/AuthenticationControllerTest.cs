@@ -145,7 +145,7 @@ namespace NUnitTests
 
             var result = controller.login(new UserModel());
 
-            Assert.That(controller.TempData["LoginError"], Is.EqualTo("usuario o contrase�a incorrectos o inexistentes"));
+            Assert.That(controller.TempData["LoginError"], Is.EqualTo("usuario o contrasena incorrectos o inexistentes"));
         }
 
         [Test]
