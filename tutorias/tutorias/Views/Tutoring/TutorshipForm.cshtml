@@ -1,0 +1,71 @@
+﻿@model tutorias.Backend.Tutoring.TutoringModel
+
+@{
+    ViewData["Title"] = ViewContext.RouteData.Values["action"]!.ToString() == "EditTutorship" ? "Editar Tutoria" : "Agregar Tutoria";
+    bool isEdit = ViewData["Title"].ToString()!.Contains("Editar");
+    var sedeList = new List<string> {
+        "Sede Central", "Sede Regional de Occidente", "Sede Regional del Atlántico",
+        "Sede Regional de Guanacaste", "Sede Regional del Caribe",
+        "Sede Regional del Pacífico", "Sede del Sur", "Sede Interuniversitaria de Alajuela"
+    };
+}
+
+<div class="container mt-5">
+    <h2>@ViewData["Title"]</h2>
+    <form asp-action="@(isEdit ? "EditTutorship" : "AddTutorship")" method="post">
+        @Html.AntiForgeryToken()
+        @if (isEdit)
+        {
+            <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="ProfessorId" />
+        }
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label asp-for="CourseInitials" class="form-label">Siglas del curso</label>
+                <input asp-for="CourseInitials" class="form-control" required />
+            </div>
+            <div class="col-md-6 mb-3">
+                <label asp-for="CourseName" class="form-label">Nombre del curso</label>
+                <input asp-for="CourseName" class="form-control" required />
+            </div>
+            <div class="col-md-3 mb-3">
+                <label asp-for="Group" class="form-label">Grupo</label>
+                <input asp-for="Group" class="form-control" type="number" required />
+            </div>
+            <div class="col-md-3 mb-3">
+                <label asp-for="Semester" class="form-label">Semestre</label>
+                <select asp-for="Semester" class="form-select" required>
+                    <option value="">Seleccione</option>
+                    <option value="1" selected="@Model.Semester == 1">1</option>
+                    <option value="2" selected="@Model.Semester == 2">2</option>
+                </select>
+            </div>
+            <div class="col-md-3 mb-3">
+                <label asp-for="Year" class="form-label">Año</label>
+                <input asp-for="Year" class="form-control" type="number" value="2025" readonly />
+            </div>
+            <div class="col-md-3 mb-3">
+                <label asp-for="Sede" class="form-label">Sede</label>
+                <select asp-for="Sede" class="form-select" required>
+                    <option value="">Seleccione</option>
+                    @foreach (var sede in sedeList)
+                    {
+                        <option value="@sede" selected="@(Model.Sede == sede)">
+                            @sede
+                        </option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label asp-for="School" class="form-label">Escuela</label>
+                <input asp-for="School" class="form-control" required />
+            </div>
+            <div class="col-md-12 mb-3">
+                <label asp-for="Description" class="form-label">Descripción</label>
+                <textarea asp-for="Description" class="form-control" rows="4" required></textarea>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">@(isEdit ? "Actualizar" : "Agregar")</button>
+        <a asp-action="TutoringMain" class="btn btn-secondary ms-2">Cancelar</a>
+    </form>
+</div>
