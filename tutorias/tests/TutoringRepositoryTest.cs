@@ -1,73 +1,150 @@
 ﻿using NUnit.Framework;
-using Moq;
-using System.Collections.Generic;
 using tutorias.Backend.Tutoring;
 using tutorias.Models;
+using Microsoft.Data.Sqlite;
+using Dapper;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace NUnitTests
 {
     public class TutoringRepositoryTest
     {
-        [Test]
-        public void AddTutorship_ReturnsTrue()
+        private SqliteConnection _conn;
+        private TutoringRepository _repo;
+
+        [SetUp]
+        public void Setup()
         {
-            var repo = new Mock<ITutoringRepository>();
-            var model = new TutoringModel();
-            repo.Setup(r => r.AddTutorship(model)).Returns(true);
-            Assert.That(repo.Object.AddTutorship(model), Is.True);
+            SQLitePCL.Batteries.Init();
+            _conn = new SqliteConnection("Data Source=:memory:");
+            _conn.Open();
+
+            _conn.Execute("""
+                CREATE TABLE Users (
+                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    Name TEXT
+                );
+            """);
+
+            _conn.Execute("""
+                CREATE TABLE Tutorship (
+                    Id INTEGER PRIMARY KEY,
+                    CourseInitials TEXT,
+                    CourseName TEXT,
+                    [Group] INTEGER,
+                    Sede TEXT,
+                    School TEXT,
+                    Semester INTEGER,
+                    [Year] INTEGER,
+                    [Description] TEXT,
+                    ProfessorId INTEGER,
+                    FOREIGN KEY (ProfessorId) REFERENCES Users(Id)
+                );
+            """);
+
+            _conn.Execute("INSERT INTO Users (Name) VALUES ('Professor X');");
+            _repo = new TutoringRepository(_conn);
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            _conn.Dispose();
         }
 
         [Test]
-        public void UpdateTutorship_ReturnsTrue()
+        public void AddTutorship_SuccessfullyInserts()
         {
-            var repo = new Mock<ITutoringRepository>();
-            var model = new TutoringModel();
-            repo.Setup(r => r.UpdateTutorship(model)).Returns(true);
-            Assert.That(repo.Object.UpdateTutorship(model), Is.True);
+            var tutorship = CreateTutorship();
+            var result = _repo.AddTutorship(tutorship);
+            Assert.IsTrue(result);
         }
 
         [Test]
-        public void DeleteTutorship_ReturnsTrue()
+        public void GetAllTutorships_ReturnsInserted()
         {
-            var repo = new Mock<ITutoringRepository>();
-            repo.Setup(r => r.DeleteTutorship(1, 2)).Returns(true);
-            Assert.That(repo.Object.DeleteTutorship(1, 2), Is.True);
+            _repo.AddTutorship(CreateTutorship());
+            var results = _repo.GetAllTutorships();
+            Assert.That(results, Has.Count.EqualTo(1));
         }
 
         [Test]
-        public void GetAllTutorships_ReturnsList()
+        public void GetTutorshipById_ReturnsCorrectItem()
         {
-            var repo = new Mock<ITutoringRepository>();
-            var list = new List<TutoringModel> { new TutoringModel() };
-            repo.Setup(r => r.GetAllTutorships()).Returns(list);
-            Assert.That(repo.Object.GetAllTutorships(), Is.EqualTo(list));
+            var tutorship = CreateTutorship();
+            _repo.AddTutorship(tutorship);
+            var result = _repo.GetTutorshipById(tutorship.Id);
+            Assert.IsNotNull(result);
+            Assert.AreEqual(tutorship.CourseName, result!.CourseName);
         }
 
         [Test]
-        public void GetTutorshipById_ReturnsModel()
+        public void UpdateTutorship_ChangesData()
         {
-            var repo = new Mock<ITutoringRepository>();
-            var model = new TutoringModel { Id = 10 };
-            repo.Setup(r => r.GetTutorshipById(10)).Returns(model);
-            Assert.That(repo.Object.GetTutorshipById(10), Is.EqualTo(model));
+            var tutorship = CreateTutorship();
+            _repo.AddTutorship(tutorship);
+            tutorship.CourseName = "Changed";
+            var updated = _repo.UpdateTutorship(tutorship);
+            var loaded = _repo.GetTutorshipById(tutorship.Id);
+
+            Assert.IsTrue(updated);
+            Assert.AreEqual("Changed", loaded!.CourseName);
         }
 
         [Test]
-        public void SearchTutorships_ReturnsList()
+        public void DeleteTutorship_RemovesRow()
         {
-            var repo = new Mock<ITutoringRepository>();
-            var list = new List<TutoringModel> { new TutoringModel() };
-            repo.Setup(r => r.SearchTutorships("Programacion I", "Rodrigo Facio", null)).Returns(list);
-            Assert.That(repo.Object.SearchTutorships("Programacion I", "Rodrigo Facio", null), Is.EqualTo(list));
+            var tutorship = CreateTutorship();
+            _repo.AddTutorship(tutorship);
+            var deleted = _repo.DeleteTutorship(tutorship.Id, tutorship.ProfessorId);
+            var after = _repo.GetTutorshipById(tutorship.Id);
+
+            Assert.IsTrue(deleted);
+            Assert.IsNull(after);
         }
 
         [Test]
-        public void GetTutorshipsByProfessorId_ReturnsList()
+        public void SearchTutorships_FiltersCorrectly()
         {
-            var repo = new Mock<ITutoringRepository>();
-            var list = new List<TutoringModel> { new TutoringModel { ProfessorId = 7 } };
-            repo.Setup(r => r.GetTutorshipsByProfessorId(7)).Returns(list);
-            Assert.That(repo.Object.GetTutorshipsByProfessorId(7), Is.EqualTo(list));
+            _repo.AddTutorship(CreateTutorship(courseName: "Programacion I", sede: "Rodrigo Facio"));
+            var results = _repo.SearchTutorships("Programacion I", null, null);
+            Assert.That(results, Has.Count.EqualTo(1));
+        }
+
+        [Test]
+        public void GetTutorshipsByProfessorId_ReturnsCorrectSet()
+        {
+            _repo.AddTutorship(CreateTutorship(professorId: 1));
+            var results = _repo.GetTutorshipsByProfessorId(1);
+            Assert.That(results, Has.Count.EqualTo(1));
+        }
+
+        private TutoringModel CreateTutorship(
+            int id = 1,
+            string courseInitials = "CS101",
+            string courseName = "Intro",
+            int group = 1,
+            string sede = "Central",
+            string school = "ECCI",
+            int semester = 1,
+            int year = 2025,
+            string description = "Curso",
+            int professorId = 1)
+        {
+            return new TutoringModel
+            {
+                Id = id,
+                CourseInitials = courseInitials,
+                CourseName = courseName,
+                Group = group,
+                Sede = sede,
+                School = school,
+                Semester = semester,
+                Year = year,
+                Description = description,
+                ProfessorId = professorId
+            };
         }
     }
 }
