@@ -9,6 +9,9 @@
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" />
 
 <div class="container mt-5">
+    <div class="d-flex justify-content-end mb-3">
+        <a asp-controller="Authentication" asp-action="LoginPage" class="btn btn-link">Cerrar sesión</a>
+    </div>
     <h2 class="text-center mb-4">Listado de Tutorías</h2>
 
     <form method="get" asp-action="SearchTutorships" class="row g-3 mb-4">
