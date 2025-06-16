@@ -27,6 +27,13 @@ namespace tutorias.Backend.Authentication
 
         public int registerUser(UserModel user)
         {
+            var emailExists = sqlConnection.QueryFirstOrDefault<int>(
+                "SELECT COUNT(1) FROM Users WHERE Email = @Email", new { user.Email });
+            if (emailExists > 0)
+            {
+                throw new InvalidOperationException($"El correo {user.Email} ya está asociado a un usuario en el sistema, debe usar otro");
+            }
+
             var sql = @"INSERT INTO Users ([Name], Email, [Password], UserType) 
                         VALUES (@Name, @Email, @Password, @UserType);
                         SELECT CAST(SCOPE_IDENTITY() as int);";

@@ -36,7 +36,7 @@ namespace tutorias.Features.Authentication
             }
             else
             {
-                TempData["LoginError"] = "usuario o contraseña incorrectos o inexistentes";
+                TempData["LoginError"] = "usuario o contrasena incorrectos o inexistentes";
                 return RedirectToAction("LoginPage");
             }
         }
@@ -45,15 +45,28 @@ namespace tutorias.Features.Authentication
         [ValidateAntiForgeryToken]
         public IActionResult registerUser(UserModel user)
         {
-            var userId = authenticationLogic.registerUser(user);
-            if (userId > 0)
+            try
             {
-                return View("RedirectSuccesfulRegisterToAutoLogin", user);
+                var userId = authenticationLogic.registerUser(user);
+                if (userId > 0)
+                {
+                    return View("RedirectSuccesfulRegisterToAutoLogin", user);
+                }
+                else
+                {
+                    TempData["RegisterError"] = "No se pudo registrar el usuario";
+                    return RedirectToAction("RegisterPage");
+                }
             }
-            else
+            catch (InvalidOperationException ex)
+            {
+                TempData["RegisterError"] = ex.Message;
+                return RedirectToAction("RegisterPage");
+            }
+            catch
             {
                 TempData["RegisterError"] = "No se pudo registrar el usuario";
-                return RedirectToAction("loginPage");
+                return RedirectToAction("RegisterPage");
             }
         }
     }

@@ -28,5 +28,16 @@ namespace NUnitTests
             var result = logic.registerUser(user);
             Assert.That(result, Is.EqualTo(42));
         }
+
+        [Test]
+        public void registerUser_ThrowsException_WhenEmailExists()
+        {
+            var repo = new Mock<IAuthenticationRepository>();
+            var user = new UserModel { Email = "dup@mail.com" };
+            repo.Setup(r => r.registerUser(user)).Throws(new InvalidOperationException("El correo dup@mail.com ya está asociado a un usuario en el sistema, debe usar otro"));
+            var logic = new AuthenticationLogic(repo.Object);
+            var ex = Assert.Throws<InvalidOperationException>(() => logic.registerUser(user));
+            Assert.That(ex.Message, Does.Contain(user.Email));
+        }
     }
 }
