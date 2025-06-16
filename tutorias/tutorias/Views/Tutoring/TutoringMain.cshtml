@@ -75,6 +75,8 @@
                                     <div class="d-flex gap-2">
                                         <a asp-action="EditTutorship" asp-route-id="@tutorship.Id" class="btn btn-sm btn-warning">Editar</a>
                                         <form asp-action="DeleteTutorship" method="post" asp-route-id="@tutorship.Id" onsubmit="return confirm('¿Eliminar esta tutoría?');">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="professorId" value="@tutorship.ProfessorId" />
                                             <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
                                         </form>
                                     </div>
