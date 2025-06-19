@@ -7,7 +7,7 @@ CREATE TABLE Users (
 );
 
 CREATE TABLE Tutorship (
-    Id  INT NOT NULL PRIMARY KEY,
+    Id INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
     CourseInitials NVARCHAR(30) NOT NULL,
     CourseName NVARCHAR(50) NOT NULL,
     [Group] INT NOT NULL,

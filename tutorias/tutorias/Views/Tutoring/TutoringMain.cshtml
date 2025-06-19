@@ -99,25 +99,14 @@
 </div>
 
 <!--jQuery-->
+
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 
 <script>
     $(document).ready(function () {
-        $('#tutorshipTable').DataTable({
-            "pageLength": 10,
-            "language": {
-                "lengthMenu": "Mostrar _MENU_ tutorías por página",
-                "zeroRecords": "No se encontraron resultados",
-                "info": "Mostrando página _PAGE_ de _PAGES_",
-                "infoEmpty": "No hay tutorías disponibles",
-                "infoFiltered": "(filtrado de _MAX_ registros totales)",
-                "search": "Buscar:",
-                "paginate": {
-                    "next": "Siguiente",
-                    "previous": "Anterior"
-                }
-            }
-        });
-    });
+            $('#tutorshipTable').DataTable({
+                "pageLength": 2 });
+     });
 </script>

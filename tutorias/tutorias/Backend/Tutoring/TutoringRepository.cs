@@ -25,8 +25,8 @@ namespace tutorias.Backend.Tutoring
 
         public bool AddTutorship(TutoringModel tutorship)
         {
-            string sql = @"INSERT INTO Tutorship (Id, CourseInitials, CourseName, [Group], Sede, School, Semester, [Year], [Description], ProfessorId)
-                          VALUES (@Id, @CourseInitials, @CourseName, @Group, @Sede, @School, @Semester, @Year, @Description, @ProfessorId)";
+            string sql = @"INSERT INTO Tutorship (CourseInitials, CourseName, [Group], Sede, School, Semester, [Year], [Description], ProfessorId)
+                          VALUES (@CourseInitials, @CourseName, @Group, @Sede, @School, @Semester, @Year, @Description, @ProfessorId)";
             return sqlConnection.Execute(sql, tutorship) > 0;
         }
 
